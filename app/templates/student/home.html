@@ -1,0 +1,157 @@
+{% extends 'mhsw/base.html' %}
+{% block content %}
+
+ <!-- Content wrapper -->
+          <div class="content-wrapper">
+            <!-- Content -->
+            <!-- Greating  -->
+            <div class="container-xxl flex-grow-1 container-p-y">
+              <div class="row">
+                <div class="col-lg-13 mb-4 order-0">
+                  <div class="card">
+                    <div class="d-flex align-items-end row">
+                      <div class="col-sm-7">
+                        <div class="card-body">
+                          <h5 class="card-title text-primary">Wellcome {{ username }}! 🎉</h5>
+                          <p class="mb-4">
+                            Now <span class="fw-bold">even semester</span> of the 2023/2024
+                          </p>
+
+                          <a href="javascript:;" class="btn btn-sm btn-outline-primary">View Badges</a>
+                        </div>
+                      </div>
+                      <div class="col-sm-5 text-center text-sm-left">
+                        <div class="card-body pb-0 px-0 px-md-4">
+                          <img
+                            src="{{ url_for('static', filename='img/illustrations/man-with-laptop-light.png') }}"
+                            height="140"
+                            alt="View Badge User"
+                            data-app-dark-img="illustrations/man-with-laptop-dark.png"
+                            data-app-light-img="illustrations/man-with-laptop-light.png"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Greating  -->
+                <form id="Presencein" action="{{ url_for('scan_face') }}" method="POST">
+                  <div class="row mb-5" style="display: none;" id="Presence">
+                    <div class="col-md-6 col-lg-4 mb-0">
+                      <div class="card text-center">
+                        <div class="card-header">Presence Available</div>
+                        <div class="card-body">
+                          <input type="text" name="schedule_id" id="schedule_id" hidden>
+                          <input type="text" name="lesson" id="lesson" style="border: none; outline: none; text-align: center;">
+                          <input type="text" name="meeting" id="meeting" hidden>
+                          <h5 class="card-title" id="kelas"></h5>
+                          <button type="submit" class="btn btn-primary" id="Presencenow">take attendance</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </form>
+                <!-- Akademik  -->
+                <div class="col-lg-12 col-md-1 order-1">
+                    <div class="row">
+                      <div class="col-lg-4 col-md-12 col-6 mb-4">
+                        <div class="card">
+                          <div class="card-body">
+                            <div class="card-title d-flex align-items-start justify-content-between">
+                              <div class="avatar flex-shrink-0">
+                                <img
+                                  src="{{ url_for('static', filename='img/icons/unicons/chart-success.png') }}"
+                                  alt="chart success"
+                                  class="rounded"
+                                />
+                              </div>
+                            </div>
+                            <span class="fw-semibold d-block mb-1">Academics</span>
+                          </div>
+                        </div>
+                      </div>
+                    <!-- Akademik  -->
+
+                    <!-- Pembayaran  -->
+                    <div class="col-lg-4 col-md-12 col-6 mb-4">
+                      <div class="card">
+                        <div class="card-body">
+                          <div class="card-title d-flex align-items-start justify-content-between">
+                            <div class="avatar flex-shrink-0">
+                              <img
+                                src="{{ url_for('static', filename='img/icons/unicons/wallet-info.png') }}"
+                                alt="Credit Card"
+                                class="rounded"
+                              />
+                            </div>
+                            <div class="dropdown">
+                              <button
+                                class="btn p-0"
+                                type="button"
+                                id="cardOpt6"
+                                data-bs-toggle="dropdown"
+                                aria-haspopup="true"
+                                aria-expanded="false"
+                              >
+                                <i class="bx bx-dots-vertical-rounded"></i>
+                              </button>
+                              <div class="dropdown-menu dropdown-menu-end" aria-labelledby="cardOpt6">
+                                <a class="dropdown-item" href="javascript:void(0);">View More</a>
+                                <a class="dropdown-item" href="javascript:void(0);">Delete</a>
+                              </div>
+                            </div>
+                          </div>
+                          <span class="fw-semibold d-block mb-1">Payment</span>
+                        </div>
+                      </div>
+                    </div>
+                    <!-- Pembayaran  -->
+
+
+                    <div class="col-lg-4 col-md-12 col-6 mb-4">
+                      <div class="card">
+                        <div class="card-body">
+                          <div class="card-title d-flex align-items-start justify-content-between">
+                            <div class="avatar flex-shrink-0">
+                              <img src="{{ url_for('static', filename='img/icons/unicons/paypal.png') }}" alt="Credit Card" class="rounded" />
+                            </div>
+                            <div class="dropdown">
+                              <button
+                                class="btn p-0"
+                                type="button"
+                                id="cardOpt4"
+                                data-bs-toggle="dropdown"
+                                aria-haspopup="true"
+                                aria-expanded="false"
+                              >
+                                <i class="bx bx-dots-vertical-rounded"></i>
+                              </button>
+                              <div class="dropdown-menu dropdown-menu-end" aria-labelledby="cardOpt4">
+                                <a class="dropdown-item" href="javascript:void(0);">View More</a>
+                                <a class="dropdown-item" href="javascript:void(0);">Delete</a>
+                              </div>
+                            </div>
+                          </div>
+                          <span class="fw-semibold d-block mb-1">Jadwal</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- / Content -->
+
+{% block script %}
+  <script>
+    var socket = io()
+    socket.on('Presence', function(message){
+      document.getElementById("schedule_id").setAttribute('value', message.id);
+      document.getElementById("meeting").setAttribute('value', message.meeting);
+      document.getElementById("lesson").setAttribute('value', message.lesson + ' '+ message.class);
+      console.log(message);
+      $('#Presence').show();
+    });
+  </script>
+{% endblock %}
+{% endblock %}

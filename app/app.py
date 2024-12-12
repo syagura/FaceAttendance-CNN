@@ -106,5 +106,22 @@ def login():
 
     return render_template('auth/login.html', title='Login', msg=msg)
 
+@app.route('/dashboard/')
+def home():
+    if 'loggedin' in session:
+        account = {
+            'id' : session['id'],
+            'username' : session['username'],
+            'role': session['role']
+        }
+        if account['role'] == 'lecture':
+            username = account['username']
+            return render_template('lecture/home.html',  username=username)
+        else:
+            username = account['username']
+            return render_template('student/home.html', username=username)
+    else:
+        return redirect(url_for('login'))
+
 if __name__ == '__main__':
     socketio.run(app,debug=True)
