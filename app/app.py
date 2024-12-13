@@ -45,6 +45,11 @@ def get_user_by_sid(sid):
     print(f"No user found for sid: {sid}")
     return None
 
+@socketio.on('server_event')
+def handle_message(message):
+    users.append({message : request.sid})
+    print(users)
+
 @app.before_request
 def before_request():
     if 'session_id' in request.cookies:
@@ -123,7 +128,7 @@ def home():
     else:
         return redirect(url_for('login'))
 
-@app.route('/jadwal/')
+@app.route('/schedule/')
 def history():
     if 'loggedin' in session:
         account = {
@@ -143,13 +148,50 @@ def history():
             schedule = cur.fetchall()
             data = []
             for schedule_row in schedule:
-                cur.execute('SELECT * FROM schedule INNER JOIN lesson ON schedule.lesson_id = lesson.id_mk WHERE schedule_id = %s', (schedule_row['schedule_id'],))
+                cur.execute('SELECT * FROM schedule INNER JOIN lesson ON schedule.lesson_id = lesson.lesson_id WHERE schedule_id = %s', (schedule_row['schedule_id'],))
                 join_data = cur.fetchall()
                 data.extend(join_data)
             return render_template('student/schedule.html', active='attendance', data=data)
     else:
         return redirect(url_for('login'))
 
+@app.route('/create_attendance/')
+def buatPresensi():
+    if 'loggedin' in session:
+        account = {
+            'id' : session['id'],
+            'username' : session['username'],
+            'role': session['role']
+        }
+        if account['role'] == 'lecture':
+            cur = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+            cur.execute(f'SELECT * FROM schedule INNER JOIN lesson ON schedule.lesson_id = lesson.lesson_id')
+            schedule = cur.fetchall()
+            return render_template('lecture/create_ateendance.html', title='Create Attendance', schedule=schedule)
+        else:
+            return redirect(url_for('home'))
+    else:
+        return redirect(url_for('login'))
+
+@socketio.on('sendattendance')
+def createattendace(message):
+    meeting = message['meeting']
+    start = message['start']
+    end = message['end']
+
+    cur = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cur.execute('SELECT * FROM schedule WHERE schedule_id=%s', (message['schedule_id']))
+    schedule = cur.fetchone()
+    data = []
+    if  schedule:
+        cur.execute('SELECT * FROM schedule INNER JOIN lesson ON schedule.lesson_id = lesson.lesson_id WHERE lesson.lesson_id = %s', (schedule['lesson_id'],))
+        join_data = cur.fetchone()
+        data.extend(join_data)
+
+        print(f'berhasil { meeting, start, end}')
+
+        socketio.emit('attendace', {'id':join_data['schedule_id'], 'lesson': join_data['lesson'],'class':join_data['class'], 'meeting':meeting})
+        print('Successfully send message')
 
 if __name__ == '__main__':
     socketio.run(app,debug=True)

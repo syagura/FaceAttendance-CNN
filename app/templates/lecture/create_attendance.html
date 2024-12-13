@@ -1,0 +1,93 @@
+{% extends 'lecture/base.html' %}
+{% block content %}
+<!-- Content wrapper -->
+<div class="content-wrapper">
+    <!-- Content -->
+
+    <div class="container-xxl flex-grow-1 container-p-y">
+
+      <!-- Basic Layout & Basic with Icons -->
+      <div class="row">
+        <!-- Basic Layout -->
+        <div class="col-xxl">
+          <div class="card mb-4">
+            <div class="card-header d-flex align-items-center justify-content-between">
+              <h5 class="mb-0">Organize Courses and Attendance Time</h5>
+              <small class="text-muted float-end">Create Attendance</small>
+            </div>
+            <div class="card-body">
+              <!-- <form id="presensiin"> -->
+                <div class="row mb-3">
+                  <label class="col-sm-2 col-form-label" for="lesson">Lesson</label>
+                  <div class="col-sm-10">
+                    <select id="lesson" class="form-select" name="lesson">
+                      <option>-- Choose Lesson -- </option>
+                      {% for schedule in schedule %}
+                      {% if schedule.lecture_id == session.id %}
+                        <option value="{{ schedule.schedule_id }}">{{ schedule.lesson }} {{ schedule.class }}</option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                  </div>
+                </div>
+                <div class="row mb-3">
+                  <label class="col-sm-2 col-form-label" for="meet">Meet</label>
+                  <div class="col-sm-10">
+                    <select id="meet" class="form-select" name="meet">
+                        <option>-- Meeting- --</option>
+                        <option value="1">Meeting-1</option>
+                        <option value="2">Meeting-2</option>
+                        <option value="3">Meeting-3</option>
+                        <option value="4">Meeting-4</option>
+                        <option value="5">Meeting-5</option>
+                        <option value="6">Meeting-6</option>
+                        <option value="7">Meeting-7</option>
+                        <option value="8">Meeting-8</option>
+                        <option value="9">Meeting-9</option>
+                        <option value="10">Meeting-10</option>
+                        <option value="11">Meeting-11</option>
+                        <option value="12">Meeting-12</option>
+                        <option value="13">Meeting-13</option>
+                        <option value="14">Meeting-14</option>
+                    </select>
+                    <div class="form-text">You can use letters, numbers & periods</div>
+                  </div>
+                </div>
+                <div class="row mb-3">
+                    <label for="start" class="col-md-2 col-form-label">Start</label>
+                    <div class="col-md-10">
+                        <input class="form-control" type="datetime-local" id="start" name="start"/>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <label for="end" class="col-md-2 col-form-label">end</label>
+                    <div class="col-md-10">
+                        <input class="form-control" type="datetime-local" id="end" name="end" />
+                    </div>
+                </div>
+                <div class="row justify-content-end">
+                  <div class="col-sm-10">
+                    <button type="submit" class="btn btn-primary" id="submitbutton">Send</button>
+                  </div>
+                </div>
+              <!-- </form> -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- / Content -->
+    {% block script %}
+    <script>
+      var socket = io()
+      $('#submitbutton').on('click', function(){
+        var lesson_id = $('#lesson').val();
+        var meeting = $('#meet').val();
+        var start = $('#start').val();
+        var end = $('#end').val();
+
+        socket.emit('sendpresensi', {'schedule_id' : schedule_id, 'meeting' : meeting, 'start' : start, 'end' : end});
+      });
+    </script>
+    {% endblock %}
+{% endblock %}
