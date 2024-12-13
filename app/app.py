@@ -123,5 +123,33 @@ def home():
     else:
         return redirect(url_for('login'))
 
+@app.route('/jadwal/')
+def history():
+    if 'loggedin' in session:
+        account = {
+            'id' : session['id'],
+            'username' : session['username'],
+            'role': session['role']
+        }
+        if account['role'] == 'lecture':
+            cur = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+            cur.execute('SELECT * FROM schedule INNER JOIN lesson ON schedule.lesson_id = lesson.lesson_id WHERE schedule.lecture_id = %s', (account['id'],))
+            schedule = cur.fetchall()
+            return render_template('lecture/schedule.html', active='attendance', schedule=schedule)
+
+        else:
+            cur = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+            cur.execute('SELECT * FROM student_shcedule WHERE student_id = %s',(account['id'],))
+            schedule = cur.fetchall()
+            data = []
+            for schedule_row in schedule:
+                cur.execute('SELECT * FROM schedule INNER JOIN lesson ON schedule.lesson_id = lesson.id_mk WHERE schedule_id = %s', (schedule_row['schedule_id'],))
+                join_data = cur.fetchall()
+                data.extend(join_data)
+            return render_template('student/schedule.html', active='attendance', data=data)
+    else:
+        return redirect(url_for('login'))
+
+
 if __name__ == '__main__':
     socketio.run(app,debug=True)

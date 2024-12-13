@@ -1,0 +1,40 @@
+{% extends 'student/base.html' %}
+{% block content %}
+{% set active_page = 'history' %}
+<!-- Small table -->
+<div class="container-xxl flex-grow-1 container-p-y">
+    <div class="card">
+        <h5 class="card-header">Course Schedule</h5>
+        <div class="table-responsive text-nowrap">
+        <table class="table table-sm table-hover">
+            <thead>
+            <tr>
+                <th>Lesson_id/th>
+                <th>Lesson</th>
+                <th>Class</th>
+                <th>Room</th>
+                <th>Day</th>
+                <th>Start</th>
+                <th>End</th>
+            </tr>
+            </thead>
+            <tbody class="table-border-bottom-0">
+            {% for data in data %}
+            <tr>
+                
+                <td><i class="fab fa-angular fa-lg text-danger me-3"></i> <strong>{{ data.lesson_id }}</strong></td>
+                <td>{{ data.lesson }}</td>
+                <td><span class="badge bg-label-primary me-1">{{ data.class }}</span></td>
+                <td><span class="badge bg-label-primary me-1">{{ data.room }}</span></td>
+                <td>{{ data.day }}</td>
+                <td>{{ data.start }}</td>
+                <td>{{ data.end }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        </div>
+    </div>
+</div>
+  <!--/ Small table -->
+{% endblock %}
