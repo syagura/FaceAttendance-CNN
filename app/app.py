@@ -1,13 +1,15 @@
-from flask import Flask, render_template, request, url_for, session, redirect, make_response
-from apscheduler.schedulers.background import BackgroundScheduler
+from flask import Flask, render_template, Response, request, url_for, session, redirect, flash, g, make_response
+import cv2 as cv
 from dotenv import load_dotenv
-import os 
+from apscheduler.schedulers.background import BackgroundScheduler 
 from flask_mysqldb import MySQL
 import MySQLdb.cursors
 from flask_session import Session
+import datetime
 import secrets
 from threading import Lock
-from flask_socketio import SocketIO, emit
+from flask_socketio import SocketIO, emit, disconnect
+from facerecognition import Recognizer
 
 
 app = Flask(__name__)
@@ -37,6 +39,11 @@ Session(app)
 
 mysql = MySQL(app)
 users = []
+
+recognizer = Recognizer(
+    socketio = socketio,
+    camera_src=0
+)
 
 def get_user_by_sid(sid):
     for user in users:
@@ -192,6 +199,37 @@ def createattendace(message):
 
         socketio.emit('attendace', {'id':join_data['schedule_id'], 'lesson': join_data['lesson'],'class':join_data['class'], 'meeting':meeting})
         print('Successfully send message')
+
+
+@app.route('/scan/', methods= ['GET', 'POST'])
+def scan_face():
+    if 'loggedin' in session:
+        account = {
+            'id' : session['id'],
+            'username' : session['username'],
+            'role': session['role']
+        }
+        data = []
+        if account['role'] == 'student':
+            if request.method == 'POST' and 'schedule_id' in request.form and 'meet' in request.form and 'lesson' in request.form:
+                schedule_id = request.form['schedule_id']
+                lesson = request.form['lesson']
+                meet = request.form['meet']
+                data.append({'student_id':account['id'], 'username':account['username'], 'schedule_id':schedule_id, 'lesson':lesson, 'meet':meet})
+
+            camera = request.args.get("camera")
+
+            if camera is not None and camera == 'off':
+                recognizer.close()
+            elif camera is not None and camera == 'on':
+                recognizer.open()
+            print("Camera status", recognizer.status())
+            return render_template('student/scan.html', is_camera=recognizer.status, data=data)
+
+@app.route('/video_feed/')
+def video_feed():
+    return Response(recognizer.gen_frames(),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
 
 if __name__ == '__main__':
     socketio.run(app,debug=True)
