@@ -1,5 +1,6 @@
 from flask import Flask, render_template, Response, request, url_for, session, redirect, flash, g, make_response
 import cv2 as cv
+import os
 from dotenv import load_dotenv
 from apscheduler.schedulers.background import BackgroundScheduler 
 from flask_mysqldb import MySQL
