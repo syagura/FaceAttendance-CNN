@@ -1,15 +1,13 @@
-from flask import Flask, render_template, Response, request, url_for, session, redirect, flash, g, make_response
-import cv2 as cv
+from flask import Flask, render_template, Response, request, url_for, session, redirect, make_response
 import os
 from dotenv import load_dotenv
 from apscheduler.schedulers.background import BackgroundScheduler 
 from flask_mysqldb import MySQL
 import MySQLdb.cursors
 from flask_session import Session
-import datetime
 import secrets
 from threading import Lock
-from flask_socketio import SocketIO, emit, disconnect
+from flask_socketio import SocketIO
 from facerecognition import Recognizer
 
 
